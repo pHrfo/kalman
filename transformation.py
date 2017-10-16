@@ -18,7 +18,7 @@ def transform(vector, transformations):
 		       [1, 3, 9]])
 
 	'''
-	return np.array([transform(vector) for transform in transformations])
+	return np.transpose(np.array([transform(vector) for transform in transformations]))
 
 def power(p):
 	return lambda vec: np.power(vec, p)
