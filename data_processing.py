@@ -47,6 +47,7 @@ def plot_data(data, name, reg_model=None):
 		plt.plot(reg_line)
 	
 	plt.savefig("imgs/" + name)
+	plt.close()
 
 
 
