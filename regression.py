@@ -45,7 +45,7 @@ def recursive_update(H_k, y_k, m_prior, P_prior, sq_sigma):
 	return m_k, P_k
 
 if __name__ == "__main__":
-	data = dp.generate_dataset(np.array([1, 0]))
+	data = dp.generate_dataset(np.array([4.75, 10.4]), var=15)
 	transforms = [tr.power(0), tr.power(1)]
 	H = tr.transform(data[:,0], transforms)
 	y = data[:,1]
@@ -55,8 +55,12 @@ if __name__ == "__main__":
 	sq_sigma = 1
 
 	rec_models = recursive_regression(H, y, m_0, p_0, sq_sigma)
-	for i, mod in enumerate(rec_models):
-		dp.plot_data(data, "reg_recursive_" + str(i) + ".png", mod[0])
+	# for i, mod in enumerate(rec_models):
+	# 	dp.plot_data(data, "reg_recursive_" + str(i) + ".png", mod[0], arrived=i, noise_var=15)
+
+	for i in range(10):
+		model = np.random.multivariate_normal(rec_models[-1][0], rec_models[-1][1])
+		dp.plot_data(data, "sample_" + str(i) + ".png", model, arrived=len(data), noise_var=15)
 
 	#m_t, p_t = batch_regression(H, y, m_0, p_0, sq_sigma) 
 
