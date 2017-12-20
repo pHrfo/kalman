@@ -26,7 +26,7 @@ def generate_dataset(coeffs, mean=0, var=5, no_of_timesteps=30, transforms = [])
 	noises = [np.random.normal(mean, var) for _ in range(no_of_timesteps)]
 
 	# We sum the original signal and the noise to get the corrupted dataset
-	return np.array([np.array([i, original_signal(i) + noises[i]]) for i in range(no_of_timesteps)])
+	return np.array([np.array([i/no_of_timesteps, original_signal(i/no_of_timesteps) + noises[i]]) for i in range(no_of_timesteps)])
 
 
 
@@ -41,7 +41,7 @@ def plot_data(data, name, reg_model=None, noise_var=5, arrived=0, drift=False, t
 
 	Plots the data and saves it to a file in the imgs directory 
 	'''
-	domain = [x for x in range(len(data))]
+	domain = [x/len(data) for x in range(len(data))]
 	df = pd.DataFrame({"time": data[:,0].tolist(), "measurement": data[:,1].tolist()})
 	df['arrived'] =  [True]*arrived + [False]*(len(data) - arrived)
 	palette = ['#BABABA', '#C74242']
@@ -51,8 +51,8 @@ def plot_data(data, name, reg_model=None, noise_var=5, arrived=0, drift=False, t
 	stds = np.array([(noise_var)]*len(data))
 	# print(palette)
 
-	sns.set_style("darkgrid")
-	sns.lmplot("time", "measurement", df, hue='arrived', fit_reg=False, palette=palette)	
+	sns.set_style("white")
+	sns.lmplot("time", "measurement", df, hue='arrived', fit_reg=False, palette=palette, scatter_kws={"s": 15})	
 
 	if reg_model is not None:
 		
@@ -63,19 +63,17 @@ def plot_data(data, name, reg_model=None, noise_var=5, arrived=0, drift=False, t
 		if drift:
 			# print(reg_model[11], transform(10, transforms))
 			for i in range(len(data)):
-				print(data[i,0], data[i,1] - np.dot(transform(i, transforms), reg_model[i]))
-			reg_line = np.array([np.dot(transform(i, transforms), reg_model[i+1]) for i in range(len(data))])
+				print(data[i,0], data[i,1] - np.dot(transform(i/len(data), transforms), reg_model[i]))
+			reg_line = np.array([np.dot(transform(i/len(data), transforms), reg_model[i+1]) for i in range(len(data))])
 			#print(reg_line)
 		else:
-			reg_line = np.array([np.dot(transform(i, transforms), reg_model) for i in range(len(data))])
+			reg_line = np.array([np.dot(transform(i/len(data), transforms), reg_model) for i in range(len(data))])
 
 
 		plt.fill_between(domain, reg_line - 2*stds/len(domain), reg_line + 2*stds/len(domain), facecolor='red', alpha=.1)
 		plt.plot(domain,reg_line)
-		plt.show()
 		
 
-	
 	plt.savefig("imgs/" + name)
 	plt.close()
 

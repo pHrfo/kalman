@@ -60,16 +60,16 @@ def recursive_update(H_k, y_k, m_prior, P_prior, sq_sigma):
 
 if __name__ == "__main__":
 	# transforms = [tr.power(0), tr.power(1)]
-	# data = dp.generate_dataset(np.array([0, 1]), var=20, no_of_timesteps=50, transforms=transforms)
+	# data = dp.generate_dataset(np.array([-2, 2]), var=0.05, no_of_timesteps=50, transforms=transforms)
 	
-	transforms = [lambda vec: np.sin(vec*2*math.pi)]
-	data = dp.generate_dataset(np.array([1]), var=0.5, no_of_timesteps=50, transforms=transforms)
+	transforms = [lambda vec: np.cos(vec*2*math.pi)]
+	data = dp.generate_dataset(np.array([ 1]), var=0.3, no_of_timesteps=50, transforms=transforms)
 
 	transforms = [tr.power(0), tr.power(1)]
 	H = tr.transform(data[:,0], transforms)
 	y = data[:,1]
 
-	m_0 = np.array([0, 0])
+	m_0 = np.array([1, 0])
 	p_0 = np.multiply(np.eye(2), 5)
 	Q = np.multiply(np.eye(2), 1)
 	sq_sigma = 1
