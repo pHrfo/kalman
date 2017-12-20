@@ -4,7 +4,7 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from transformation import power, transform
 
-def generate_dataset(coeffs, mean=0, var=5, no_of_timesteps=30):
+def generate_dataset(coeffs, mean=0, var=5, no_of_timesteps=30, transforms = []):
 	'''
 	coeffs: np.array, represents the coefficients of the original signal
 	mean: integer, represents the mean of the noise gaussian
@@ -14,7 +14,10 @@ def generate_dataset(coeffs, mean=0, var=5, no_of_timesteps=30):
 	Returns a nd.array containing an artificial dataset, i.e. a set of measurements for the original signal
 	'''
 	# Here we create the array of transformations as specified in transformation.py
-	transformations = [power(i) for i in range(len(coeffs))]
+	if transforms:
+		transformations = transforms
+	else:
+		transformations = [power(i) for i in range(len(coeffs))]
 
 	# A function that transforms an integer x into an array [1	x] and then multiplies it by the coefficients of the model
 	original_signal = lambda x: np.dot(transform(x, transformations), coeffs)
@@ -28,7 +31,7 @@ def generate_dataset(coeffs, mean=0, var=5, no_of_timesteps=30):
 
 
 
-def plot_data(data, name, reg_model=None, noise_var=5, arrived=0):
+def plot_data(data, name, reg_model=None, noise_var=5, arrived=0, drift=False, transforms = []):
 	'''
 	data: np.array, Bidimensional dataset where the first column is the timestep and the second is the value of the measurement at that timestep
 	name: str, name and extension of the output file
@@ -38,6 +41,7 @@ def plot_data(data, name, reg_model=None, noise_var=5, arrived=0):
 
 	Plots the data and saves it to a file in the imgs directory 
 	'''
+	domain = [x for x in range(len(data))]
 	df = pd.DataFrame({"time": data[:,0].tolist(), "measurement": data[:,1].tolist()})
 	df['arrived'] =  [True]*arrived + [False]*(len(data) - arrived)
 	palette = ['#BABABA', '#C74242']
@@ -51,14 +55,24 @@ def plot_data(data, name, reg_model=None, noise_var=5, arrived=0):
 	sns.lmplot("time", "measurement", df, hue='arrived', fit_reg=False, palette=palette)	
 
 	if reg_model is not None:
-
-		transforms = [power(i) for i in range(len(reg_model))]
 		
-		reg_line = np.array([np.dot(transform(i, transforms), reg_model) for i in range(len(data))])
+		if not transforms:
+			transforms = [power(i) for i in range(len(data[0]))]
+		reg_line = []
+		
+		if drift:
+			# print(reg_model[11], transform(10, transforms))
+			for i in range(len(data)):
+				print(data[i,0], data[i,1] - np.dot(transform(i, transforms), reg_model[i]))
+			reg_line = np.array([np.dot(transform(i, transforms), reg_model[i+1]) for i in range(len(data))])
+			#print(reg_line)
+		else:
+			reg_line = np.array([np.dot(transform(i, transforms), reg_model) for i in range(len(data))])
 
 
-		plt.fill_between(range(len(data)), reg_line - stds, reg_line + stds, facecolor='red', alpha=.1)
-		plt.plot(reg_line)
+		plt.fill_between(domain, reg_line - 2*stds/len(domain), reg_line + 2*stds/len(domain), facecolor='red', alpha=.1)
+		plt.plot(domain,reg_line)
+		plt.show()
 		
 
 	

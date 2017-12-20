@@ -21,7 +21,7 @@ def transform(vector, transformations):
 	return np.transpose(np.array([transform(vector) for transform in transformations]))
 
 def power(p):
-	return lambda vec: np.power(vec, p)
+	return lambda vec: vec ** p
 
 if __name__ == "__main__":
 	v = np.array([1,2,3])
