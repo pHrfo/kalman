@@ -62,8 +62,8 @@ if __name__ == "__main__":
 	# transforms = [tr.power(0), tr.power(1)]
 	# data = dp.generate_dataset(np.array([-2, 2]), var=0.05, no_of_timesteps=50, transforms=transforms)
 	
-	transforms = [lambda vec: np.cos(vec*2*math.pi)]
-	data = dp.generate_dataset(np.array([ 1]), var=0.3, no_of_timesteps=50, transforms=transforms)
+	transforms = [lambda vec: np.sin(vec*2*math.pi)]
+	data = dp.generate_dataset(np.array([ 1]), var=0.3, no_of_timesteps=150, transforms=transforms)
 
 	transforms = [tr.power(0), tr.power(1)]
 	H = tr.transform(data[:,0], transforms)
@@ -71,7 +71,7 @@ if __name__ == "__main__":
 
 	m_0 = np.array([1, 0])
 	p_0 = np.multiply(np.eye(2), 5)
-	Q = np.multiply(np.eye(2), 1)
+	Q = np.multiply(np.eye(2), 0.05)
 	sq_sigma = 1
 
 	rec_models = recursive_regression_with_drift(H, y, m_0, p_0, sq_sigma, Q)
