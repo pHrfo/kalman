@@ -22,13 +22,30 @@ def kalman_filter(Y, m_0, P_0, process_noise, measurement_noise, prediction_step
 	for i, y_k in enumerate(Y):
 
 		m_pred, P_pred = prediction_step(m_prior, P_prior, process_noise, make_A, delta_t)
-		m_post, P_post = update_step(y_k, m_pred, P_pred, measurement_noise, make_H)
+		y = treat_missing_data(y_k ,m_pred, P_pred, make_H, measurement_noise)
+
+		m_post, P_post = update_step(y, m_pred, P_pred, measurement_noise, make_H)
 
 		output += [(m_post, P_post)]
 
 		m_prior, P_prior = m_post, P_post
 
 	return output
+
+def treat_missing_data(y_k, m_pred, P_pred, make_H, measurement_noise):
+	if y_k == None:
+		H_k = make_H()
+		S_k = np.dot(np.dot(H_k, P_pred), np.transpose(H_k)) + measurement_noise
+
+		m_k = np.dot(H_k, m_pred)
+		
+		# y_k = np.random.normal(m_k, S_k)
+		# return y_k
+
+		print(m_k)
+		return m_k
+
+	return y_k
 
 ############################## GENERAL KALMAN FILTER ###################################
 
